@@ -1,72 +1,73 @@
-#!/usr/bin
-/python3
+#!/usr/bin/python3
 
 # INET4031
-# Your Name
-# Data Created
-# Date Last Modified
+# Kirubail
+# 03-26-2026
+# 03-02-2026
 
-#REPLACE THIS COMMENT - identify what each of these imports is for.
+# Import os is for system level commands from within python
+# Import re is used for regular expression matching 
+# sys is used for acces to stdin that is used below which means standard input which is used for reading input 
+
 import os
 import re
 import sys
 
-#YOUR CODE SHOULD HAVE NONE OF THE INSTRUCTORS COMMENTS REMAINING WHEN YOU ARE FINISHED
-#PLEASE REPLACE INSTRUCTOR "PROMPTS" WITH COMMENTS OF YOUR OWN
 
 def main():
     for line in sys.stdin:
 
-        #REPLACE THIS COMMENT - this "regular expression" is searching for the presence of a character - what is it and why?
-        #The important part is WHY it is looking for a particular characer - what is that character being used for?
+        #This expression matching is checking if the line starts with a "#".
+        #The purpose is to skip the lines that are commented out meaning the do not want that user to be processed or changed at the moment. 
+
         match = re.match("^#",line)
 
-        #REPLACE THIS COMMENT - why is the code doing this?
+        #This is to split up the line based of where the colon is which is what splits up the password from group..ect
         fields = line.strip().split(':')
 
-        #REPLACE THESE COMMENTS with a single comment describing the logic of the IF 
-        #what would an appropriate comment be for describing what this IF statement is checking for?
-        #what happens if the IF statement evaluates to true?
-        #how does this IF statement rely on what happened in the prior two lines of code? The match and fields lines.
-        #the code clearly shows that the variables match and the length of fields is being checked for being != 5  so why is it doing that?
+        #The if Contion checks if the line is a comment which starts with # or does nto contain exactly 5 fields
+        # If either condition is true then the line will be skipped 
+        # This will help prevent errors that are from incorrect inputs 
+        # This code requires all 5 inputs to create and add the user so if one is missing it would cause a issue
+        
         if match or len(fields) != 5:
             continue
 
-        #REPLACE THIS COMMENT - what is the purpose of the next three lines. How does it relate to what is stored in the passwd file?
+	# These three lines store the username password and user information for identity. It is takign them from the parsed lines.
         username = fields[0]
         password = fields[1]
         gecos = "%s %s,,," % (fields[3],fields[2])
 
-        #REPLACE THIS COMMENT - why is this split being done?
+        # This split is done incase the user is meant to be added to mutiple groups since they are seperated by commas.
         groups = fields[4].split(',')
 
-        #REPLACE THIS COMMENT - what is the point of this print statement?
+        # This simply shows the user the account is being created for the specific user 
         print("==> Creating account for %s..." % (username))
-        #REPLACE THIS COMMENT - what is this line doing?  What will the variable "cmd" contain.
+        # This is creating the linux command to create a new user account, the disabled password stops password login at first and gecos adds teh user identity information like full name..
         cmd = "/usr/sbin/adduser --disabled-password --gecos '%s' %s" % (gecos,username)
 
-        #REMOVE THIS COMMENT AFTER YOU UNDERSTAND WHAT TO DO - these statements are currently "commented out" as talked about in class
-        #The first time you run the code...what should you do here?  If uncommented - what will the os.system(cmd) statemetn attempt to do?
-        #print(cmd)
-        #os.system(cmd)
+	# These lines were commented out for dry run mode ensuring that when the code was ran at first we were able to just print the code outputs but not run then to make the users incase the code was incorrect.
+        print(cmd)
+        os.system(cmd)
 
-        #REPLACE THIS COMMENT - what is the point of this print statement?
+	# This prints a message to the user showing them the password is being set.
         print("==> Setting the password for %s..." % (username))
-        #REPLACE THIS COMMENT - what is this line doing?  What will the variable "cmd" contain. You'll need to lookup what these linux commands do.
+	# This builds a command that echoes the password twice for confirmation 
+	# It then pipes it into the password command to set the users password
         cmd = "/bin/echo -ne '%s\n%s' | /usr/bin/sudo /usr/bin/passwd %s" % (password,password,username)
 
-        #REMOVE THIS COMMENT AFTER YOU UNDERSTAND WHAT TO DO - these statements are currently "commented out" as talked about in class
-        #The first time you run the code...what should you do here?  If uncommented - what will the os.system(cmd) statemetn attempt to do?
-        #print(cmd)
-        #os.system(cmd)
+	# This would execute the password setting command if it was it was left uncommented 
+        print(cmd)
+        os.system(cmd)
 
         for group in groups:
-            #REPLACE THIS COMMENT with one that answers "What is this IF statement looking for and why? If group !='-' what happens?"
+            # It looks for the "-" sign as a  way to indicate that the person should not be added to any groups therefore if it is not there then to continue 
+	    # to add the person to the listed groups.
             if group != '-':
                 print("==> Assigning %s to the %s group..." % (username,group))
                 cmd = "/usr/sbin/adduser %s %s" % (username,group)
-                #print(cmd)
-                #os.system(cmd)
+                print(cmd)
+                os.system(cmd)
 
 if __name__ == '__main__':
     main()
